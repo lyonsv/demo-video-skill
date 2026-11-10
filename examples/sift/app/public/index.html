@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sift · feedback inbox</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header class="top">
+  <div class="logo"><span class="mark">S</span> Sift</div>
+  <div class="sub">Feedback inbox</div>
+</header>
+
+<main>
+  <section class="inbox" aria-label="Inbox">
+    <form id="add" class="add" autocomplete="off">
+      <textarea id="text" aria-label="New feedback" rows="2" placeholder="Paste a comment from a customer…"></textarea>
+      <div class="row">
+        <select id="source" aria-label="Source">
+          <option>Support</option><option>Survey</option><option>App review</option>
+        </select>
+        <button id="add-btn" type="submit">Add feedback</button>
+      </div>
+    </form>
+    <div class="list-head"><h2>Inbox</h2><span id="count" class="count"></span></div>
+    <ul id="list" class="list"></ul>
+  </section>
+
+  <section class="digest" aria-label="Digest">
+    <div class="digest-head">
+      <div>
+        <h2>This week’s themes</h2>
+        <p class="hint">Groups every comment in the inbox by what it’s about</p>
+      </div>
+      <button id="build" type="button">Build digest</button>
+    </div>
+    <div id="progress" class="progress" hidden>
+      <div class="bar"><div id="bar-fill"></div></div>
+      <div id="progress-text" class="progress-text"></div>
+    </div>
+    <div id="themes" class="themes">
+      <div class="empty">No digest yet. Build one to see the themes.</div>
+    </div>
+  </section>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

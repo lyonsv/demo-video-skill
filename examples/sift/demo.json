@@ -1,0 +1,25 @@
+{
+  "name": "sift",
+  "title": "Sift: a feedback inbox, then how it is built",
+  "description": "The README example for the demo-video skill: a walkthrough of a small real app, then an architecture segment explaining it.",
+  "owner": "lyonsv",
+  "repos": ["examples/sift/app (in this repo)"],
+  "needs": [
+    {
+      "what": "Sift",
+      "check": "http://localhost:4318/api/health",
+      "start": "node examples/sift/app/server.js   (from the repo root)"
+    }
+  ],
+  "reset": "The walkthrough resets the app itself (POST /api/reset). It leaves one added comment and a digest in memory; restart the server or POST /api/reset to clear them.",
+  "segments": [
+    { "name": "walkthrough", "kind": "walkthrough", "script": "record-walkthrough.js" },
+    {
+      "name": "architecture",
+      "kind": "scenes",
+      "page": "architecture.html",
+      "timeline": "0:3000,1:6500,2:7500,3:6500,4:6000,5:3500"
+    }
+  ],
+  "output": "sift-demo.mp4"
+}

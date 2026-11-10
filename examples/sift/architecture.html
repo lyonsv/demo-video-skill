@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Sift architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet" />
+<style>
+  /* Built from the skill's assets/architecture-example.html: same tokens, type and scene contract. */
+  :root {
+    --ink: #111; --grey-50: #fbfbfb; --grey-100: #f4f4f4; --grey-300: #ccc; --grey-500: #808080; --grey-600: #666;
+    --purple: #6f43d6; --purple-dark: #4316ac; --purple-soft: #efe9ff; --green: #1f8a5b; --green-soft: #e3f5ec;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: #fff; color: var(--ink);
+    font-family: Lato, 'Helvetica Neue', Arial, sans-serif; }
+  .scene { position: absolute; inset: 0; padding: 56px 72px; opacity: 0; transition: opacity .7s ease; pointer-events: none; }
+  .scene.on { opacity: 1; }
+  .kicker { font-size: 14px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: var(--grey-600); }
+  h1 { font-size: 40px; font-weight: 900; margin: 6px 0 0; letter-spacing: -.01em; }
+  h1 .tag { font-size: 15px; font-weight: 900; vertical-align: middle; margin-left: 12px; padding: 5px 12px; border-radius: 999px; letter-spacing: .06em;
+    background: var(--grey-100); color: var(--grey-600); transition: background .4s ease, color .4s ease; }
+  .tracing h1 .tag { background: var(--purple-soft); color: var(--purple); }
+
+  #title, #end { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  #title h1, #end h1 { font-size: 60px; margin: 12px 0 14px; }
+  #title p, #end p { font-size: 22px; color: var(--grey-600); margin: 0; }
+  .arrow { color: var(--purple); }
+
+  .diagram { position: absolute; left: 72px; right: 72px; top: 210px; bottom: 120px; }
+  .col-label { position: absolute; top: -34px; font-size: 13px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-500); }
+  .box { position: absolute; border: 2px solid var(--ink); border-radius: 14px; background: #fff; padding: 14px 16px;
+    transition: opacity .5s ease, border-color .4s ease, background-color .4s ease; }
+  .box h3 { margin: 0 0 4px; font-size: 19px; font-weight: 900; }
+  .box p { margin: 0; font-size: 14px; color: var(--grey-600); line-height: 1.4; }
+  .box.ext { border-style: dashed; border-color: var(--grey-500); background: var(--grey-50); }
+  .box.deploy { background: var(--grey-50); padding-top: 44px; }
+  .deploy-tag { position: absolute; top: 12px; left: 16px; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
+    color: #fff; background: var(--ink); padding: 3px 9px; border-radius: 6px; }
+  .sub { position: relative; border: 1.5px solid var(--grey-300); border-radius: 10px; background: #fff; padding: 9px 70px 9px 12px; margin-top: 8px;
+    transition: border-color .4s ease, background-color .4s ease, opacity .4s ease; }
+  .sub b { font-size: 15px; display: block; }
+  .sub span { font-size: 13px; color: var(--grey-600); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .badge { position: absolute; right: 10px; top: 9px; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 5px; background: var(--purple); color: #fff; opacity: 0; transition: opacity .4s ease; }
+  .sub span.badge { color: #fff; font-family: Lato, 'Helvetica Neue', Arial, sans-serif; font-size: 11px; }
+  .box > .badge { top: -12px; right: 16px; font-size: 12px; padding: 4px 9px; border-radius: 999px; }
+
+  /* Step 2: trace the digest path, dim everything else. */
+  .tracing .path { border-color: var(--purple) !important; background: var(--purple-soft) !important; }
+  .tracing .path > .badge { opacity: 1; }
+  .tracing .quiet { opacity: .35; }
+  .tracing .flow.quiet path { stroke: var(--grey-300); }
+
+  .wire-label { position: absolute; transform: translate(-50%, -50%); font-size: 13px; font-weight: 900; white-space: nowrap; z-index: 2;
+    background: #fff; border: 1.5px solid var(--grey-300); color: var(--grey-600); padding: 3px 10px; border-radius: 999px; transition: opacity .4s ease; }
+  .wire-label.stream { color: var(--purple); border-color: var(--purple); }
+  svg.wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .flow path { fill: none; stroke: var(--ink); stroke-width: 2.2; transition: stroke .4s ease, opacity .4s ease; }
+  .flow.stream path { stroke: var(--purple); stroke-width: 3; stroke-dasharray: 2 9; stroke-linecap: round; animation: dash .6s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -14; } }
+
+  .chips { position: absolute; left: 72px; right: 72px; bottom: 48px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .chip { font-size: 16px; font-weight: 700; padding: 9px 16px; border-radius: 999px; border: 1.5px solid var(--grey-300); background: #fff; }
+  .chip.good { border-color: var(--purple); color: var(--purple); background: var(--purple-soft); }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 44px; }
+  .metric { border: 1.5px solid var(--grey-300); border-radius: 16px; padding: 22px 22px 20px; background: #fff; }
+  .metric .label { font-size: 15px; font-weight: 700; color: var(--grey-600); }
+  .metric .to { display: block; font-size: 64px; font-weight: 900; margin: 10px 0 4px; }
+  .metric .note { font-size: 14px; color: var(--grey-600); line-height: 1.4; }
+  .metric.hero { background: var(--purple-soft); border-color: var(--purple); }
+  .metric.hero .to { color: var(--purple-dark); }
+  .files { margin-top: 30px; border: 1.5px solid var(--grey-300); border-radius: 16px; overflow: hidden; }
+  .files div { display: grid; grid-template-columns: 420px 1fr 90px; padding: 12px 22px; font-size: 16px; border-top: 1px solid var(--grey-100); }
+  .files div:first-child { border-top: 0; }
+  .files code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; }
+  .files span { color: var(--grey-600); }
+  .files em { font-style: normal; text-align: right; font-weight: 700; }
+  .method { position: absolute; left: 72px; right: 72px; bottom: 40px; font-size: 13px; color: var(--grey-600); }
+
+  .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; margin-top: 34px; }
+  .col { border-radius: 18px; padding: 24px 28px; }
+  .col.up { background: var(--purple-soft); }
+  .col.down { background: var(--grey-100); }
+  .col h2 { margin: 0 0 14px; font-size: 22px; font-weight: 900; }
+  .col.up h2 { color: var(--purple-dark); }
+  .col ul { margin: 0; padding: 0; list-style: none; }
+  .col li { font-size: 18px; line-height: 1.35; padding: 9px 0 9px 34px; position: relative; opacity: 0; transform: translateY(6px); transition: opacity .4s ease, transform .4s ease; }
+  .col li.show { opacity: 1; transform: none; }
+  .col li::before { position: absolute; left: 0; top: 8px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; font-weight: 900; }
+  .col.up li::before { content: '+'; background: var(--purple); color: #fff; }
+  .col.down li::before { content: '–'; background: var(--grey-500); color: #fff; }
+  .col li small { display: block; font-size: 14px; color: var(--grey-600); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<section class="scene" id="title">
+  <div class="kicker">Sift · how it’s built</div>
+  <h1>Page <span class="arrow">→</span> server <span class="arrow">→</span> stream</h1>
+  <p>One Node process serves the page, the API and the digest jobs</p>
+</section>
+
+<section class="scene" id="arch">
+  <div class="kicker">Architecture</div>
+  <h1>One process, no dependencies <span class="tag" id="arch-tag">the whole app</span></h1>
+  <div class="diagram">
+    <div class="col-label" style="left:0">Browser</div>
+    <div class="col-label" style="left:400px">Node · examples/sift/app</div>
+    <div class="col-label" style="left:1040px">In the process</div>
+
+    <div class="box path" id="ui" style="left:0;top:150px;width:290px">
+      <span class="badge">1 · click</span>
+      <h3>index.html + app.js</h3>
+      <p>Inbox list, add form and the digest panel. Plain DOM, no build step.</p>
+    </div>
+
+    <div class="box deploy" id="server" style="left:400px;top:0;width:540px">
+      <span class="deploy-tag">server.js · node:http</span>
+      <div class="sub quiet" id="s-static"><b>Static files</b><span>GET / · public/*</span></div>
+      <div class="sub quiet" id="s-feedback"><b>Feedback API</b><span>GET · POST /api/feedback</span></div>
+      <div class="sub path" id="s-jobs"><span class="badge">2 · start</span><b>Digest jobs</b><span>POST /api/digests → 202 { id }</span></div>
+      <div class="sub path" id="s-events"><span class="badge">4 · stream</span><b>Event stream</b><span>GET /api/digests/:id/events · SSE</span></div>
+    </div>
+
+    <div class="box quiet" id="store" style="left:1040px;top:40px;width:256px"><h3>Store</h3><p>In memory, reset from seed.json</p></div>
+    <div class="box path" id="themes" style="left:1040px;top:250px;width:256px"><span class="badge">3 · read</span><h3>themes.js</h3><p>Keyword rules, one comment at a time</p></div>
+    <svg class="wires" id="wires"></svg>
+  </div>
+  <div class="chips">
+    <span class="chip good">1 process</span><span class="chip good">0 dependencies</span>
+    <span class="chip">JSON over fetch</span><span class="chip">Progress over Server-Sent Events</span>
+  </div>
+</section>
+
+<section class="scene" id="numbers">
+  <div class="kicker">The example app · counted with wc -l</div>
+  <h1>Small enough to read in one sitting</h1>
+  <div class="metrics">
+    <div class="metric hero"><div class="label">Lines of code</div><span class="to" data-count="311">311</span><div class="note">server, rules, page, script and styles</div></div>
+    <div class="metric hero"><div class="label">Dependencies</div><span class="to" data-count="0">0</span><div class="note">node:http, fs and path only</div></div>
+    <div class="metric"><div class="label">Files</div><span class="to" data-count="5">5</span><div class="note">plus seed.json, the starting inbox</div></div>
+    <div class="metric"><div class="label">Endpoints</div><span class="to" data-count="6">6</span><div class="note">health, feedback ×2, reset, digests, events</div></div>
+  </div>
+  <div class="files">
+    <div><code>app/server.js</code><span>HTTP server, store, digest jobs, SSE</span><em>124</em></div>
+    <div><code>app/themes.js</code><span>Theme keyword rules</span><em>17</em></div>
+    <div><code>app/public/app.js</code><span>Inbox, add form, digest stream</span><em>62</em></div>
+    <div><code>app/public/index.html · style.css</code><span>Markup and styles</span><em>108</em></div>
+  </div>
+</section>
+
+<section class="scene" id="features">
+  <div class="kicker">Scope</div>
+  <h1>What it does, and what it leaves out</h1>
+  <div class="cols">
+    <div class="col up"><h2>In the app</h2><ul>
+      <li>Add feedback<small>from support, surveys or app reviews</small></li>
+      <li>Background digest job<small>starts with a POST, returns at once</small></li>
+      <li>Live progress<small>streamed over Server-Sent Events, replayed on reconnect</small></li>
+      <li>Deterministic themes<small>same inbox, same digest, every take</small></li>
+    </ul></div>
+    <div class="col down"><h2>Left out on purpose</h2><ul>
+      <li>A database<small>the store resets from seed.json</small></li>
+      <li>Accounts and auth<small>it runs on localhost for the demo</small></li>
+      <li>A build step<small>the page is plain HTML, CSS and JS</small></li>
+    </ul></div>
+  </div>
+</section>
+
+<section class="scene" id="end">
+  <div class="kicker">Recorded with the demo-video skill</div>
+  <h1>Feedback in <span class="arrow">→</span> themes out</h1>
+  <p>One process, one stream, no dependencies</p>
+</section>
+
+<script>
+  const $ = (s) => document.querySelector(s);
+  const anchor = (el, side, container) => {
+    const r = el.getBoundingClientRect(), c = container.getBoundingClientRect();
+    return [side === 'right' ? r.right - c.left : r.left - c.left, r.top - c.top + r.height / 2];
+  };
+  const wire = (svg, from, to, label, cls = '') => {
+    const container = svg.parentElement;
+    const [x1, y1] = anchor($(from), 'right', container);
+    const [x2, y2] = anchor($(to), 'left', container);
+    const mx = (x1 + x2) / 2;
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', `flow ${cls}`);
+    g.innerHTML = `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2 - 8},${y2}" marker-end="url(#arrow-${cls.includes('stream') ? 'p' : 'k'})"/>`;
+    svg.appendChild(g);
+    if (label) {
+      const pill = document.createElement('div');
+      pill.className = `wire-label ${cls}`;
+      pill.textContent = label;
+      pill.style.left = `${mx}px`;
+      pill.style.top = `${(y1 + y2) / 2}px`;
+      container.appendChild(pill);
+    }
+  };
+  const drawWires = () => {
+    document.querySelectorAll('.wire-label').forEach((el) => el.remove());
+    const svg = $('#wires');
+    svg.innerHTML = `<defs>
+      <marker id="arrow-k" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111"/></marker>
+      <marker id="arrow-p" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6f43d6"/></marker></defs>`;
+    wire(svg, '#ui', '#s-feedback', 'fetch JSON', 'quiet');
+    wire(svg, '#ui', '#s-events', 'EventSource', 'stream');
+    wire(svg, '#server', '#store', 'read · write', 'quiet');
+    wire(svg, '#s-jobs', '#themes', 'per comment', 'stream');
+  };
+
+  const show = (id) => document.querySelectorAll('.scene').forEach((s) => s.classList.toggle('on', s.id === id));
+  const countUp = () => document.querySelectorAll('#numbers [data-count]').forEach((el) => {
+    const target = +el.dataset.count, start = performance.now();
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / 1200);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  const revealList = () => document.querySelectorAll('#features li').forEach((li, i) => setTimeout(() => li.classList.add('show'), i * 260));
+
+  // The recorder calls step(n): 0 title, 1 architecture, 2 trace the digest path, 3 numbers, 4 scope, 5 end card.
+  window.step = (n) => {
+    if (n === 0) show('title');
+    if (n === 1) { show('arch'); $('#arch').classList.remove('tracing'); $('#arch-tag').textContent = 'the whole app'; }
+    if (n === 2) { $('#arch').classList.add('tracing'); $('#arch-tag').textContent = 'building a digest'; }
+    if (n === 3) { show('numbers'); countUp(); }
+    if (n === 4) { show('features'); revealList(); }
+    if (n === 5) show('end');
+  };
+  document.fonts.ready.then(() => { drawWires(); window.step(0); });
+  window.addEventListener('resize', drawWires);
+  // Presenting live: → / space steps forward, ← steps back.
+  let current = 0;
+  window.addEventListener('keydown', (e) => {
+    const next = e.key === 'ArrowRight' || e.key === ' ' ? current + 1 : e.key === 'ArrowLeft' ? current - 1 : current;
+    if (next === current || next < 0 || next > 5) return;
+    e.preventDefault();
+    current = next;
+    if (current === 1) show('arch');
+    window.step(current);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "demo-video-skill",
+  "private": true,
+  "description": "Recording dependencies for the bundled example. The skill itself needs these in your demos repo.",
+  "scripts": {
+    "sift": "node examples/sift/app/server.js",
+    "record:sift": "node scripts/record.js examples/sift"
+  },
+  "devDependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "playwright-core": "^1.48.0"
+  }
+}

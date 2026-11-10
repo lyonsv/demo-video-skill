@@ -1,0 +1,59 @@
+:root {
+  --ink: #16181d; --muted: #6b7080; --line: #e6e8ee; --bg: #f6f7fa; --card: #fff;
+  --accent: #0f766e; --accent-soft: #e6f4f2; --warm: #fff6e0;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+
+.top { display: flex; align-items: baseline; gap: 14px; padding: 18px 32px; background: var(--card); border-bottom: 1px solid var(--line); }
+.logo { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.mark { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 16px; }
+.sub { color: var(--muted); }
+
+main { display: grid; grid-template-columns: 480px 1fr; gap: 24px; padding: 24px 32px; height: calc(100% - 67px); }
+section { min-height: 0; }
+h2 { font-size: 17px; margin: 0; }
+
+.inbox { display: flex; flex-direction: column; }
+.add { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.add textarea { width: 100%; border: 0; resize: none; font: inherit; outline: none; }
+.add .row { display: flex; justify-content: space-between; margin-top: 8px; }
+select, button { font: inherit; border-radius: 8px; padding: 7px 12px; }
+select { border: 1px solid var(--line); background: #fff; }
+button { border: 0; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+
+.list-head { display: flex; justify-content: space-between; align-items: baseline; margin: 20px 2px 10px; }
+.count { color: var(--muted); font-size: 13px; }
+.list { list-style: none; margin: 0; padding: 0; overflow: auto; display: grid; gap: 8px; }
+.item { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; transition: background .2s ease, border-color .2s ease; }
+.item p { margin: 0 0 6px; }
+.item.new { background: var(--warm); border-color: #f0d48a; }
+.item.reading { border-color: var(--accent); background: var(--accent-soft); }
+.meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 12.5px; }
+.src { font-weight: 600; }
+.src-support { color: #2f5bd3; } .src-survey { color: #9a4fd6; } .src-appreview { color: #c2540a; }
+
+.digest { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; overflow: auto; }
+.digest-head { display: flex; justify-content: space-between; align-items: flex-start; }
+.hint { margin: 4px 0 0; color: var(--muted); }
+.progress { margin: 18px 0 4px; }
+.bar { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+#bar-fill { height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+.progress-text { margin-top: 8px; color: var(--muted); font-size: 13px; }
+
+.themes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 18px; }
+.empty { grid-column: 1 / -1; color: var(--muted); padding: 40px 0; text-align: center; border: 1.5px dashed var(--line); border-radius: 12px; }
+.theme { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; animation: rise .35s ease both; }
+.theme:nth-child(2) { animation-delay: .08s; } .theme:nth-child(3) { animation-delay: .16s; }
+.theme:nth-child(4) { animation-delay: .24s; } .theme:nth-child(5) { animation-delay: .32s; } .theme:nth-child(6) { animation-delay: .4s; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.theme-head { display: flex; justify-content: space-between; align-items: baseline; }
+.theme h3 { margin: 0; font-size: 16px; }
+.n { font-weight: 800; font-size: 20px; color: var(--accent); }
+.share { height: 5px; border-radius: 99px; background: var(--line); margin: 8px 0 10px; overflow: hidden; }
+.share div { height: 100%; background: var(--accent); }
+.theme ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.theme li { color: #3a3e49; font-size: 13.5px; }
+.theme li.new { background: var(--warm); border-radius: 6px; padding: 2px 6px; margin: 0 -6px; }

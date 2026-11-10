@@ -1,0 +1,14 @@
+[
+  { "text": "The dashboard takes ages to load on Monday mornings", "source": "Support", "date": "2026-11-02" },
+  { "text": "I was charged twice for the annual plan", "source": "Support", "date": "2026-11-02" },
+  { "text": "Search results ignore the project I have selected", "source": "Survey", "date": "2026-11-03" },
+  { "text": "Love the new export, saves me an hour a week", "source": "App review", "date": "2026-11-03" },
+  { "text": "The iOS app logs me out every time I switch apps", "source": "App review", "date": "2026-11-03" },
+  { "text": "Setup asked for my team size three times", "source": "Survey", "date": "2026-11-04" },
+  { "text": "Reports freeze when I pick a long date range", "source": "Support", "date": "2026-11-04" },
+  { "text": "Can I get an invoice with our VAT number on it?", "source": "Support", "date": "2026-11-05" },
+  { "text": "Filters reset when I go back to the list", "source": "Survey", "date": "2026-11-05" },
+  { "text": "Charts are unreadable on my phone in landscape", "source": "App review", "date": "2026-11-06" },
+  { "text": "The spinner on the inbox never stops on slow wifi", "source": "Support", "date": "2026-11-06" },
+  { "text": "Invite links expire before my colleagues click them", "source": "Survey", "date": "2026-11-07" }
+]
